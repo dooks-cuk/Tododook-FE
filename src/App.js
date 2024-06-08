@@ -1,74 +1,50 @@
 import React from 'react';
-import { Paper, List, Container, Button } from '@mui/material';
+
 import Todo from './Todo';
 import AddTodo from './AddTodo';
-import { call } from './service/ApiService';
+import { Paper, List, Container, Grid, Button, AppBar, Toolbar, Typography } from "@mui/material";
+import './App.css';
+import { call, signout } from './service/ApiService';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       items: [],
+      /* 로딩 중이라는 상태를 표현할 변수 생성자에 상태 변수를 초기화한다. */
+      loading: true,
     };
   }
 
-  componentDidMount() {
-    this.fetchTodos();
-  }
-
-  // fetchTodos = () => {
-  //   call("/todo", "GET", null).then((response) =>
-  //     this.setState({ items: response.data })
-  //   );
-  // }
-
-  fetchTodos = () => {
-    call("/todo", "GET", null).then((response) => {
-      const sortedItems = response.data.sort((a, b) => {
-        const priorityOrder = { high: 1, medium: 2, low: 3 };
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
-      });
-      this.setState({ items: sortedItems });
-    });
-  }
-
+  // add 함수 추가
   add = (item) => {
-    call("/todo", "POST", item).then(() =>
-      this.fetchTodos()
+    call("/todo", "POST", item).then((response) =>
+      this.setState({ items: response.data })
     );
   }
 
   delete = (item) => {
-    call("/todo", "DELETE", item).then(() =>
-      this.fetchTodos()
+    call("/todo", "DELETE", item).then((response) =>
+      this.setState({ items: response.data })
     );
-  }
-
-  deleteCompleted = () => {
-    const completedItems = this.state.items.filter(item => item.done);
-    completedItems.forEach(item => {
-      this.delete(item);
-    });
   }
 
   update = (item) => {
-    call("/todo", "PUT", item).then(() =>
-      this.fetchTodos()
+    call("/todo", "PUT", item).then((response) =>
+      this.setState({ items: response.data })
     );
   }
 
-  // deleteCompleted = () => {
-  //   const completedItems = this.state.items.filter(item => item.done);
-  //   const selectedIds = completedItems.map(item => item.id);
-  //   call("/todo/deleteSelected", "DELETE", selectedIds).then(() =>
-  //     this.fetchTodos()
-  //   );
-  // }
-
-  
-
+  // componentDidMount는 페이지(돔) 마운트가 일어나고 렌더링 되기 전에 실행된다.
+  componentDidMount() {
+    call("/todo", "GET", null).then((response) =>
+      this.setState({ items: response.data, loading: false })
+    );
+  }
 
   render() {
+    // todoItems에 this.state.items.length 가 0보다 크다면 true 이므로 && 뒤에 값을 넘겨준다.
+    // todoItem = this.state.items.length > 0 ? (<Paper></Paper>):""; 이렇게 해도 같은 결과이다. 조건선택문 ? ternary operator
     const todoItems = this.state.items.length > 0 && (
       <Paper style={{ margin: 16 }}>
         <List>
@@ -79,18 +55,44 @@ class App extends React.Component {
       </Paper>
     );
 
-    return (
-      <div className="App">
+    // navigationBar
+    const navigationBar = (
+      <AppBar position="static">
+        <Toolbar>
+          <Grid container justifyContent="space-between">
+            <Grid item>
+              <Typography variant="h6">오늘의 할일</Typography>
+            </Grid>
+            <Grid item>
+              <Button color="inherit" onClick={signout}>
+                logout
+              </Button>
+            </Grid>
+          </Grid>
+        </Toolbar>
+      </AppBar>
+    );
+
+    // loading 중이 아닐 때
+    const todoListPage = (
+      <div>
+        {navigationBar}
         <Container maxWidth="md">
           <AddTodo add={this.add} />
           <div className="TodoList">{todoItems}</div>
-          <Button variant="contained" color="secondary" onClick={this.deleteCompleted}>
-            Delete Completed
-          </Button>
         </Container>
+      </div>
+    );
+
+    // loading 중일 때
+    const loadingPage = <h1>로딩중..</h1>;
+
+    // 생성된 컴포넌트 JSX를 리턴한다.
+    return (
+      <div className="App">
+        {this.state.loading ? loadingPage : todoListPage}
       </div>
     );
   }
 }
-
 export default App;
