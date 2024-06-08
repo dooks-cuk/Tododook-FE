@@ -26,9 +26,7 @@ export function call(api, method, request) {
         })
       )
       .catch((error) => {
-        console.log("Oops!");
         console.log(error.status);
-        console.log("Oops!");
         if (error.status === 403) {
           window.location.href = "/login";
         }
@@ -57,13 +55,11 @@ export async function signup(userDTO) {
     try {
         const response = await call("/api/auth/signup", "POST", userDTO);
         console.log(response);
-        if (response.status === 200) {
+        if (response.status === 201) {
             window.location.href = "/";
         }
     } catch (error) {
-        console.log("Oops!");
         console.log(error.status);
-        console.log("Oops!");
         if (error.status === 403) {
             window.location.href = "/auth/signup";
         }
