@@ -31,39 +31,42 @@ class Todo extends React.Component {
     this.setState({ item: thisItem });
   }
 
-  checkboxEventHandler = (e) => {
-    const thisItem = this.state.item;
-    thisItem.done = !thisItem.done;
-    this.setState({ item: thisItem, readOnly: true });
-    this.update(this.state.item);
+  checkboxEventHandler = () => {
+    const thisItem = { ...this.state.item, done: !this.state.item.done };
+    this.setState({ item: thisItem, readOnly: true }, () => {
+      this.update(thisItem);
+    });
   }
 
   priorityChangeHandler = (e) => {
-    const thisItem = this.state.item;
-    thisItem.priority = e.target.value;
-    this.setState({ item: thisItem });
-    this.update(this.state.item);
+    const thisItem = { ...this.state.item, priority: e.target.value };
+    this.setState({ item: thisItem }, () => {
+      this.update(thisItem);
+    });
   }
 
-// priorityChangeHandler = (e) => {
-//     const newPriority = e.target.value;
-//     const updatedItem = { ...this.state.item, priority: newPriority };
-//     this.setState({ item: updatedItem }, () => {
-//       this.update(updatedItem); // 백엔드로 변경된 중요도를 전달
-//     });
-//   }
+
 
   render() {
-    const item = this.state.item;
+    const { item, readOnly } = this.state;
     return (
       <ListItem>
         <Checkbox
           checked={item.done}
           onChange={this.checkboxEventHandler}
         />
-        <ListItemText>
+        <div
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: '50%',
+            backgroundColor: item.categoryColor,
+            marginRight: 10,
+          }}
+        />
+        <ListItemText style={{ marginLeft: 10 }}>
           <InputBase
-            inputProps={{ "aria-label": "naked", readOnly: this.state.readOnly }}
+            inputProps={{ "aria-label": "naked", readOnly }}
             type="text"
             id={item.id}
             name={item.id}
@@ -82,9 +85,9 @@ class Todo extends React.Component {
             displayEmpty
             inputProps={{ 'aria-label': 'Priority' }}
           >
-            <MenuItem value="high">High</MenuItem>
-            <MenuItem value="medium">Medium</MenuItem>
-            <MenuItem value="low">Low</MenuItem>
+            <MenuItem value="HIGH">High</MenuItem>
+            <MenuItem value="MEDIUM">Medium</MenuItem>
+            <MenuItem value="LOW">Low</MenuItem>
           </Select>
         </FormControl>
         <ListItemSecondaryAction>
