@@ -162,7 +162,7 @@ import AddTodo from './AddTodo';
 import { Paper, List, Container, Grid, Button, AppBar, Toolbar, Typography, FormControl, Select, MenuItem } from "@mui/material";
 import './App.css';
 import { call, signout } from './service/ApiService';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
 
 class App extends React.Component {
   constructor(props) {
