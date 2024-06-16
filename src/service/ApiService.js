@@ -1,5 +1,4 @@
 import { API_BASE_URL } from "../app-config";
-const ACCESS_TOKEN = "accessToken";
 
 export function call(api, method, request) {
     let headers = new Headers({
@@ -23,11 +22,13 @@ export function call(api, method, request) {
             return Promise.reject(json);
           }
           return json;
+
         })
+     
       )
       .catch((error) => {
-        console.log(error.status);
-        if (error.status === 403) {
+        console.error("Error during fetch:", JSON.stringify(error));
+        if (error.status === 403 || error.status === 401) {
           window.location.href = "/login";
         }
         return Promise.reject(error);
@@ -39,6 +40,9 @@ export async function signin(userDTO) {
     try {
       const response = await call("/api/auth/login", "POST", userDTO);
       console.log(response);
+      // if (response.code === 400) {
+      //   throw new Error("아이디 혹은 비밀번호가 틀립니다. 다시 입력해주세요.");
+      // }
       if (response.accessToken) {
         // local 스토리지에 토큰 저장
         localStorage.setItem("ACCESS_TOKEN", response.accessToken);
@@ -46,24 +50,37 @@ export async function signin(userDTO) {
         window.location.href = "/";
       }
     } catch (error) {
-      console.error(error);
+      console.error("Signin failed:", JSON.stringify(error));
     }
-  }
-  
+}
+
+
+
 // 회원 가입 요청
 export async function signup(userDTO) {
     try {
-        const response = await call("/api/auth/signup", "POST", userDTO);
-        console.log(response);
-        if (response.status === 201) {
-            window.location.href = "/";
-        }
-    } catch (error) {
-        console.log(error.status);
-        if (error.status === 403) {
-            window.location.href = "/auth/signup";
-        }
-        console.error(error);
+      const response = await call("/api/auth/signup", "POST", userDTO);
+      console.log(response);
+      // if(response.status === 400) {
+      //   throw new Error("이미 존재하는 이메일입니다.");
+      // }
+
+      if(response.status === 201) {
+        window.location.href = "/";
+      }
+
+    }
+    catch (error) {
+      console.error("Signup failed:", JSON.stringify(error));
+      if (error.status === 403) {
+          window.location.href = "/signup";
+      }
+      // else if (error.status === 400) {
+      //   throw new Error("이미 존재하는 이메일입니다.");
+      // } else {
+      //   console.error(`추가 오류 정보: ${error.message}`);
+      // }
+      console.error(error);
     }
 }
   
